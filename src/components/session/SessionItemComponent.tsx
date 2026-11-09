@@ -226,6 +226,8 @@ import liveChatClosedIllustration from '../../resources/img/illustrations/live-c
 import NorthEastIcon from '@mui/icons-material/NorthEast';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import CloseIcon from '@mui/icons-material/Close';
+import { useOpenAddonPanel, withAddonPanel } from '../../addons/addonPanel';
+import { AddonSessionPanel } from '../../addons/AddonSessionPanel';
 import { canRenderClientComposer } from './clientComposerPolicy';
 import type { TeamDiscussionStatus } from '../../api/apiTeamDiscussion';
 import {
@@ -2181,7 +2183,8 @@ export const SessionItemComponent = (props: SessionItemProps) => {
 	// The panel the URL asks for, resolved against what exists. A thread
 	// whose root is not in the loaded history keeps the main chat open
 	// (analysis F3 — fetching the root is a follow-up).
-	const openPanel: 'supervision' | 'team' | 'thread' | null =
+	const openAddonPanel = useOpenAddonPanel(location.search);
+	const openPanel: 'supervision' | 'team' | 'thread' | 'addon' | null =
 		routeChannel?.kind === 'supervision'
 			? hasSupervisionSideRoom
 				? 'supervision'
@@ -2192,7 +2195,9 @@ export const SessionItemComponent = (props: SessionItemProps) => {
 					: null
 				: activeThreadRootId && activeThreadRootMessage
 					? 'thread'
-					: null;
+					: openAddonPanel
+						? 'addon'
+						: null;
 	const shownChannelId =
 		openPanel === 'supervision'
 			? channelId({ kind: 'supervision' })
@@ -4432,7 +4437,25 @@ export const SessionItemComponent = (props: SessionItemProps) => {
 			/>
 		) : null;
 
-	const sidePanel = threadPanel ?? supervisionPanel ?? teamPanel;
+	const addonPanel =
+		openPanel === 'addon' && openAddonPanel ? (
+			<AddonSessionPanel
+				{...openAddonPanel}
+				variant={panelVariant}
+				className={`chatStage__panel--${panelVariant}`}
+				agencyId={activeSession.item?.agencyId}
+				sessionId={activeSession.item?.id}
+				onClose={() =>
+					navigate({
+						pathname: location.pathname,
+						search: withAddonPanel(location.search, null)
+					})
+				}
+			/>
+		) : null;
+
+	const sidePanel =
+		threadPanel ?? supervisionPanel ?? teamPanel ?? addonPanel;
 
 	// Desktop: the panel joins the card (`.chatStage__card--split`) behind
 	// the real `ResizableHandle` (T2). Phone: the panel fills the screen

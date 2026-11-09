@@ -17,6 +17,7 @@ import {
 } from './addonTypes';
 
 export const AGENCY_HEADER = 'X-Oriso-Agency-Id';
+export const SESSION_HEADER = 'X-Oriso-Session-Id';
 
 export interface AddonPlacement {
 	agencyId?: number;
@@ -40,7 +41,7 @@ export const readThemeTokens = (
 
 export const addonApiCall = (
 	addon: Pick<AvailableAddon, 'apiBase'>,
-	agencyId: number | undefined,
+	{ agencyId, sessionId }: Pick<AddonPlacement, 'agencyId' | 'sessionId'>,
 	baseUrl: string = apiUrl,
 	token: () => string | undefined = () => getValueFromCookie('keycloak')
 ) => {
@@ -52,6 +53,9 @@ export const addonApiCall = (
 		}
 		if (agencyId != null) {
 			headers.set(AGENCY_HEADER, String(agencyId));
+		}
+		if (sessionId != null) {
+			headers.set(SESSION_HEADER, String(sessionId));
 		}
 		const relative = path.startsWith('/') ? path : `/${path}`;
 		return fetch(`${baseUrl}${addon.apiBase}${relative}`, {
@@ -94,7 +98,7 @@ export const useAddonHostProps = (
 			agencyId,
 			sessionId,
 			askerId,
-			api: addonApiCall(addon, agencyId),
+			api: addonApiCall(addon, { agencyId, sessionId }),
 			navigate: goTo
 		}),
 		[
