@@ -1,4 +1,8 @@
 {
+	"addons": {
+		"loadError": "Diese Erweiterung konnte nicht geladen werden.",
+		"notAvailable": "Diese Erweiterung ist nicht verfügbar."
+	},
 	"menuEffects": {
 		"title": "Menüdarstellung",
 		"label": "Schleier und sanfte Menüanimationen",

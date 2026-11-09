@@ -1,4 +1,8 @@
 {
+	"addons": {
+		"loadError": "This add-on could not be loaded.",
+		"notAvailable": "This add-on is not available."
+	},
 	"menuEffects": {
 		"title": "Menu appearance",
 		"label": "Backdrop and gentle menu animations",

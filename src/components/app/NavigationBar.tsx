@@ -381,7 +381,9 @@ export const NavigationBar = ({
 									Object.keys(
 										pathsToShowUnreadMessageNotification
 									).includes(item.to) && unreadCount > 0;
-								const label = translate(item.titleKeys.large);
+								const label =
+									item.title ??
+									translate(item.titleKeys.large);
 								const unreadLabel = showUnreadNav
 									? translate(
 											'sessionList.rail.unreadCount',
