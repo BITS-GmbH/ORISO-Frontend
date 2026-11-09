@@ -2,6 +2,14 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { addonApiCall, readThemeTokens } from './useAddonHostProps';
 
+// v2.0.11's jsdom setup has no canvas; a module imported by the app code draws on one.
+vi.hoisted(() => {
+	HTMLCanvasElement.prototype.getContext = (() => ({
+		fillRect: () => undefined,
+		measureText: () => ({ width: 0 })
+	})) as never;
+});
+
 describe('addonApiCall', () => {
 	afterEach(() => vi.unstubAllGlobals());
 
@@ -11,7 +19,7 @@ describe('addonApiCall', () => {
 
 		const api = addonApiCall(
 			{ apiBase: '/service/addons/demo/api' },
-			12,
+			{ agencyId: 12, sessionId: 34 },
 			'https://example.org',
 			() => 'token-1'
 		);
@@ -27,6 +35,7 @@ describe('addonApiCall', () => {
 		const headers = init.headers as Headers;
 		expect(headers.get('Authorization')).toBe('Bearer token-1');
 		expect(headers.get('X-Oriso-Agency-Id')).toBe('12');
+		expect(headers.get('X-Oriso-Session-Id')).toBe('34');
 		expect(headers.get('Content-Type')).toBe('application/json');
 		expect(init.method).toBe('POST');
 		expect(init.credentials).toBe('omit');
@@ -35,14 +44,10 @@ describe('addonApiCall', () => {
 	it('sends no agency header outside an agency context', async () => {
 		const fetchMock = vi.fn().mockResolvedValue(new Response('{}'));
 		vi.stubGlobal('fetch', fetchMock);
-		await addonApiCall(
-			{ apiBase: '/a' },
-			undefined,
-			'',
-			() => undefined
-		)('/x');
+		await addonApiCall({ apiBase: '/a' }, {}, '', () => undefined)('/x');
 		const headers = fetchMock.mock.calls[0][1].headers as Headers;
 		expect(headers.has('X-Oriso-Agency-Id')).toBe(false);
+		expect(headers.has('X-Oriso-Session-Id')).toBe(false);
 		expect(headers.has('Authorization')).toBe(false);
 	});
 });

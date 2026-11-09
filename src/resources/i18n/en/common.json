@@ -6646,6 +6646,10 @@
 	},
 	"addons": {
 		"loadError": "This add-on could not be loaded.",
-		"notAvailable": "This add-on is not available."
+		"notAvailable": "This add-on is not available.",
+		"panel": {
+			"region": "Side panel: {{title}}",
+			"close": "Close"
+		}
 	}
 }

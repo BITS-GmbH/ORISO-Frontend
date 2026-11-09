@@ -7,6 +7,14 @@ import { LocaleContext, UserDataContext } from '../globalState';
 import { AddonMount } from './AddonMount';
 import { AddonHostProps, AddonModule, AvailableAddon } from './addonTypes';
 
+// v2.0.11's jsdom setup has no canvas; a module imported by the app code draws on one.
+vi.hoisted(() => {
+	HTMLCanvasElement.prototype.getContext = (() => ({
+		fillRect: () => undefined,
+		measureText: () => ({ width: 0 })
+	})) as never;
+});
+
 vi.mock('react-i18next', () => ({
 	useTranslation: () => ({ t: (key: string) => key })
 }));
