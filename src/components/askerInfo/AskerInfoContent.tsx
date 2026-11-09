@@ -15,6 +15,7 @@ import '../profile/profile.styles';
 import './askerInfo.styles';
 import { AskerInfoTools } from './AskerInfoTools';
 import { Box } from '../box/Box';
+import { AddonProfileTiles } from '../../addons/AddonProfileTiles';
 
 export const AskerInfoContent = () => {
 	const { tenant } = useContext(TenantContext);
@@ -63,6 +64,7 @@ export const AskerInfoContent = () => {
 					<AskerInfoTools />
 				</Box>
 			)}
+			<AddonProfileTiles />
 			{(isSessionAssignAvailable || isOwnerHandoverAvailable) && (
 				<Box>
 					<div className="askerInfo__assign">

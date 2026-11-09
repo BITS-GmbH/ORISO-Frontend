@@ -1,4 +1,8 @@
 {
+	"addons": {
+		"loadError": "This add-on could not be loaded.",
+		"notAvailable": "This add-on is not available."
+	},
 	"liveChatConversion": {
 		"title": "Keep your conversation",
 		"intro": "Create a password for this account. Your Live Chat stays with you.",
