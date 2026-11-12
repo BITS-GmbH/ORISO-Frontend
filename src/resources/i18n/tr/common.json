@@ -6728,5 +6728,13 @@
 			"title": "Hesabınız kontrol edilemedi",
 			"text": "Mesajınız henüz gönderilmedi ve yazı alanında duruyor. Lütfen bağlantınızı kontrol edip yeniden gönderin."
 		}
+	},
+	"addons": {
+		"loadError": "Bu eklenti yüklenemedi.",
+		"notAvailable": "Bu eklenti kullanılamıyor.",
+		"panel": {
+			"region": "Yan panel: {{title}}",
+			"close": "Kapat"
+		}
 	}
 }

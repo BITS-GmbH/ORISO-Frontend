@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useEffect, useRef, useState } from 'react';
+import { createContext, useContext, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { apiUrl } from '../resources/scripts/endpoints';
 import {
@@ -14,13 +14,19 @@ import { AddonPlacement, useAddonHostProps } from './useAddonHostProps';
 
 const bootstrapped = new WeakSet<AddonModule>();
 
+type AddonModuleLoader = (url: string) => Promise<AddonModule>;
+
+/** Replaced in Storybook, where no AddonService serves bundles. */
+export const AddonModuleLoaderContext =
+	createContext<AddonModuleLoader>(loadAddonModule);
+
 interface AddonMountProps {
 	addon: AvailableAddon;
 	app: AddonApp;
 	slot: AddonSlot;
 	placement?: AddonPlacement;
-	/** Injected in tests; defaults to the dynamic import of the bundle. */
-	loader?: (url: string) => Promise<AddonModule>;
+	/** Injected in tests; defaults to the loader from context. */
+	loader?: AddonModuleLoader;
 }
 
 /** Loads an add-on bundle and mounts one of its apps into a slot. */
@@ -29,8 +35,10 @@ export const AddonMount = ({
 	app,
 	slot,
 	placement,
-	loader = loadAddonModule
+	loader: loaderProp
 }: AddonMountProps) => {
+	const contextLoader = useContext(AddonModuleLoaderContext);
+	const loader = loaderProp ?? contextLoader;
 	const { t: translate } = useTranslation();
 	const element = useRef<HTMLDivElement>(null);
 	const [failed, setFailed] = useState(false);
@@ -73,13 +81,16 @@ export const AddonMount = ({
 		return () => {
 			active = false;
 			if (mounted) {
-				Promise.resolve(mounted.module.unmount(mounted.props)).catch(
-					(error) =>
+				const { module, props } = mounted;
+				// Deferred: an add-on may unmount its own React root, which React refuses during a commit.
+				Promise.resolve()
+					.then(() => module.unmount(props))
+					.catch((error) =>
 						console.error(
 							`Add-on ${addon.name}/${app.id} failed to unmount`,
 							error
 						)
-				);
+					);
 			}
 		};
 	}, [addon, app.id, hostProps, loader]);

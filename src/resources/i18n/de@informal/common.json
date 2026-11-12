@@ -1,12 +1,4 @@
 {
-	"addons": {
-		"loadError": "Diese Erweiterung konnte nicht geladen werden.",
-		"notAvailable": "Diese Erweiterung ist nicht verfügbar.",
-		"panel": {
-			"region": "Seitenbereich: {{title}}",
-			"close": "Schließen"
-		}
-	},
 	"contactSheet": {
 		"missingEmail": "Hinterlege zuerst eine E-Mail-Adresse in deinem Profil.",
 		"failed": "Die E-Mail konnte nicht gesendet werden. Bitte versuche es erneut."

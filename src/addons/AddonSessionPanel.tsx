@@ -49,15 +49,13 @@ export const AddonSessionPanel = ({
 					</button>
 				</div>
 			}
-			timeline={
-				<div className="addonPanel__body">
-					<AddonMount
-						addon={addon}
-						app={app}
-						slot="consultant.session"
-						placement={{ agencyId, sessionId }}
-					/>
-				</div>
+			content={
+				<AddonMount
+					addon={addon}
+					app={app}
+					slot="consultant.session"
+					placement={{ agencyId, sessionId }}
+				/>
 			}
 		/>
 	);

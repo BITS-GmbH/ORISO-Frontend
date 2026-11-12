@@ -2,14 +2,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { addonApiCall, readThemeTokens } from './useAddonHostProps';
 
-// v2.0.11's jsdom setup has no canvas; a module imported by the app code draws on one.
-vi.hoisted(() => {
-	HTMLCanvasElement.prototype.getContext = (() => ({
-		fillRect: () => undefined,
-		measureText: () => ({ width: 0 })
-	})) as never;
-});
-
 describe('addonApiCall', () => {
 	afterEach(() => vi.unstubAllGlobals());
 

@@ -6728,5 +6728,13 @@
 			"title": "Nous n'avons pas pu vérifier votre compte",
 			"text": "Votre message n'a pas encore été envoyé et reste dans le champ de saisie. Vérifiez votre connexion et envoyez-le à nouveau."
 		}
+	},
+	"addons": {
+		"loadError": "Ce module complémentaire n'a pas pu être chargé.",
+		"notAvailable": "Ce module complémentaire n'est pas disponible.",
+		"panel": {
+			"region": "Panneau latéral : {{title}}",
+			"close": "Fermer"
+		}
 	}
 }

@@ -15,7 +15,7 @@ export const apiGetAddonRegistry = async (): Promise<AvailableAddon[]> => {
 		const response: AddonRegistryResponse = await fetchData({
 			url: endpoints.addonRegistry,
 			method: FETCH_METHODS.GET,
-			responseHandling: [FETCH_ERRORS.CATCH_ALL]
+			responseHandling: [FETCH_ERRORS.CATCH_ALL_EXCEPT_UNAUTHORIZED]
 		});
 		if (
 			response?.contract !== ADDON_CONTRACT ||

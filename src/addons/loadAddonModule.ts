@@ -3,7 +3,7 @@ import { AddonModule } from './addonTypes';
 const modules = new Map<string, Promise<AddonModule>>();
 
 const importModule = (url: string): Promise<unknown> =>
-	import(/* webpackIgnore: true */ url);
+	import(/* webpackIgnore: true */ /* @vite-ignore */ url);
 
 export const isAddonModule = (candidate: unknown): candidate is AddonModule =>
 	typeof candidate === 'object' &&
