@@ -6663,6 +6663,7 @@
 				"deadline": "Deadline",
 				"reminder": "Reminder"
 			}
-		}
+		},
+		"badge": "Updates: {{count}}"
 	}
 }

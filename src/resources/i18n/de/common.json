@@ -6738,6 +6738,7 @@
 				"deadline": "Frist",
 				"reminder": "Erinnerung"
 			}
-		}
+		},
+		"badge": "Neuigkeiten: {{count}}"
 	}
 }

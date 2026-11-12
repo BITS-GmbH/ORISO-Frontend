@@ -2379,7 +2379,10 @@ export const SessionItemComponent = (props: SessionItemProps) => {
 	// The panel the URL asks for, resolved against what exists. A thread
 	// whose root is not in the loaded history keeps the main chat open
 	// (analysis F3 — fetching the root is a follow-up).
-	const openAddonPanel = useOpenAddonPanel(location.search);
+	const openAddonPanel = useOpenAddonPanel(location.search, {
+		agencyId: activeSession.item?.agencyId,
+		sessionId: activeSession.item?.id
+	});
 	const openPanel: 'supervision' | 'team' | 'thread' | 'addon' | null =
 		routeChannel?.kind === 'supervision'
 			? hasSupervisionSideRoom
