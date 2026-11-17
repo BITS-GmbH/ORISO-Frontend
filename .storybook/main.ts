@@ -24,6 +24,8 @@ const config: StorybookConfig = {
 		// session list, composer-adjacent pieces) in the catalog instead of only
 		// the first atomic proof batch.
 		'../src/components/**/*.stories.@(ts|tsx)',
+		// What add-ons may use from the host (ADR-034).
+		'../src/addons/**/*.stories.@(ts|tsx)',
 		// The transactional e-mail kit. Kept apart from the in-app component
 		// library on purpose — same design language, completely different
 		// rendering rules (tables, inline styles, no JS).
