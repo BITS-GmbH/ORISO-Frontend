@@ -246,7 +246,11 @@ import liveChatClosedIllustration from '../../resources/img/illustrations/live-c
 import NorthEastIcon from '@mui/icons-material/NorthEast';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { ReactComponent as CloseIcon } from '../../resources/img/icons/close.svg';
-import { useOpenAddonPanel, withAddonPanel } from '../../addons/addonPanel';
+import {
+	parseAddonPanel,
+	useOpenAddonPanel,
+	withAddonPanel
+} from '../../addons/addonPanel';
 import { AddonSessionPanel } from '../../addons/AddonSessionPanel';
 import { canRenderClientComposer } from './clientComposerPolicy';
 import { isCaseHandoverCoAccess } from './caseHandoverHelpers';
@@ -2468,6 +2472,7 @@ export const SessionItemComponent = (props: SessionItemProps) => {
 	// Practice (FE#1622): the tour teaches opening the team discussion; a panel
 	// opening by itself would remove the button its step points at.
 	const isPracticing = usePracticeActive();
+	const addonPanelRequested = parseAddonPanel(location.search) !== null;
 	useEffect(() => {
 		const sessionId = activeSession.item?.id;
 		if (!sessionId || !isSupervisionPanelViewer) {
@@ -2486,7 +2491,8 @@ export const SessionItemComponent = (props: SessionItemProps) => {
 			canStartTeamDiscussion:
 				Boolean(activeSession.isEnquiry) &&
 				canOpenTeamSideRoom &&
-				!isPracticing
+				!isPracticing,
+			addonPanelRequested
 		});
 		if (decision.settle) {
 			autoOpenedForSessionRef.current = sessionId;
@@ -2505,7 +2511,8 @@ export const SessionItemComponent = (props: SessionItemProps) => {
 		canOpenTeamSideRoom,
 		isPracticing,
 		messages,
-		setChannelRoute
+		setChannelRoute,
+		addonPanelRequested
 	]);
 
 	// Unread side-room messages: foreign items newer than the last time the
