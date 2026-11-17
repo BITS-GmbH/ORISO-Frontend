@@ -113,6 +113,7 @@ import {
 } from '../furtherCounselling/furtherCounsellingRules';
 import { RecommendFurtherCounsellingDialog } from '../furtherCounselling/RecommendFurtherCounsellingDialog';
 import { getGroupChatInfoLink } from '../groupChat/groupChatInfoLink';
+import { AddonSessionMenuItems } from '../../addons/AddonSessionMenuItems';
 
 export interface SessionMenuProps {
 	hasUserInitiatedStopOrLeaveRequest: React.MutableRefObject<boolean>;
@@ -811,6 +812,10 @@ export const SessionMenu = (props: SessionMenuProps) => {
 										shortcut="⇧P"
 									/>
 								</Link>
+							)}
+
+							{!activeSession.isGroup && (
+								<AddonSessionMenuItems onSelect={closeMenu} />
 							)}
 
 							<div
