@@ -17,6 +17,8 @@ export interface ProcessPreviewMessage {
 	type: 'oriso:process-preview';
 	journey: JourneyWithPages;
 	page: number;
+	/** The Admin's language, so the preview reads as the admin edits it. */
+	language?: string;
 }
 
 const isPreviewMessage = (data: unknown): data is ProcessPreviewMessage =>
@@ -37,7 +39,12 @@ export const ProcessPreview = () => {
 	useEffect(() => {
 		const receive = (event: MessageEvent) => {
 			if (event.origin !== window.location.origin) return;
-			if (isPreviewMessage(event.data)) setMessage(event.data);
+			if (!isPreviewMessage(event.data)) return;
+			setMessage(event.data);
+			const { language } = event.data;
+			if (language && language !== i18n.language) {
+				i18n.changeLanguage(language);
+			}
 		};
 		window.addEventListener('message', receive);
 		window.parent?.postMessage(
@@ -45,7 +52,7 @@ export const ProcessPreview = () => {
 			window.location.origin
 		);
 		return () => window.removeEventListener('message', receive);
-	}, []);
+	}, [i18n]);
 
 	const onChange = useCallback(
 		(
