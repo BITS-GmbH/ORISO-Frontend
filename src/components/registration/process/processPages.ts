@@ -2,8 +2,9 @@ import type { Journey, JourneyStep, LangMap } from '../../journey/journeyModel';
 
 /**
  * The check-in of a Mailberatung journey as the admin grouped it into pages
- * (ADR-039). Page 1 is the topic choice and nothing else; a journey without
- * stored pages shows each check-in step on a page of its own.
+ * (ADR-039). Asked first, the topic choice is page 1 and nothing else; the
+ * process that runs every topic may ask for it later. A journey without stored
+ * pages shows each check-in step on a page of its own.
  */
 export interface ProcessPage {
 	id: string;
@@ -37,7 +38,9 @@ export const processPagesOf = (journey: JourneyWithPages): ProcessPage[] => {
 		.map((step) => ({ id: `page:${step.id}`, title: {}, steps: [step] }));
 	const pages = [...stored, ...loose];
 	const topic = steps.find((step) => step.core === 'topic');
-	if (!topic) return pages.filter((page) => page.steps.length > 0);
+	const first = pages.find((page) => page.steps.length > 0);
+	if (!topic || first?.steps[0]?.id !== topic.id)
+		return pages.filter((page) => page.steps.length > 0);
 	const rest = pages
 		.map((page) => ({
 			...page,

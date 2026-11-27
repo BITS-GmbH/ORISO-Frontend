@@ -4172,6 +4172,16 @@
 			"dropdown": "Sprache wählen",
 			"any": "Egal, jede Sprache ist recht",
 			"noMatch": "In Ihrer Nähe berät niemand in dieser Sprache. Hier sind alle Beratungsstellen in Ihrer Nähe."
+		},
+		"ageYears": {
+			"placeholder": "z.B. 25",
+			"unit": "Jahre"
+		},
+		"gender": {
+			"MALE": "Männlich",
+			"FEMALE": "Weiblich",
+			"DIVERS": "Divers",
+			"NOT_PROVIDED": "Keine Angabe"
 		}
 	},
 	"releaseNote": {

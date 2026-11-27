@@ -24,12 +24,18 @@ const read = (url: string): Promise<PublicJourney> =>
  * The journey whose registration runs for a topic, as the centre (if chosen) and its Träger
  * adapted it (ORISO-UserService#1700). Resolves `journey: null` where none is stored.
  */
-export const apiGetRegistrationJourney = (topicId: number, agencyId?: number) =>
-	read(
-		`${endpoints.journeys}/registration?topicId=${encodeURIComponent(topicId)}${
-			agencyId ? `&agencyId=${encodeURIComponent(agencyId)}` : ''
-		}`
+export const apiGetRegistrationJourney = (
+	topicId?: number,
+	agencyId?: number
+) => {
+	const query = new URLSearchParams();
+	if (topicId) query.set('topicId', String(topicId));
+	if (agencyId) query.set('agencyId', String(agencyId));
+	const search = query.toString();
+	return read(
+		`${endpoints.journeys}/registration${search ? `?${search}` : ''}`
 	);
+};
 
 /** The journey behind a link address `/l/<slug>`, with the link's topics and centre. */
 export const apiGetLinkJourney = (slug: string, agencyId?: number) =>

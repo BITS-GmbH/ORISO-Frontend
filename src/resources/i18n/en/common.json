@@ -4118,6 +4118,16 @@
 			"dropdown": "Choose a language",
 			"any": "Any language is fine",
 			"noMatch": "Nobody near you counsels in this language. Here are all counselling centres near you."
+		},
+		"ageYears": {
+			"placeholder": "e.g. 25",
+			"unit": "years"
+		},
+		"gender": {
+			"MALE": "Male",
+			"FEMALE": "Female",
+			"DIVERS": "Diverse",
+			"NOT_PROVIDED": "Not specified"
 		}
 	},
 	"releaseNote": {

@@ -823,7 +823,13 @@ export const Registration = () => {
 				: undefined,
 			mainTopicId: selectedTopic?.id?.toString(),
 			topicId: selectedTopic?.id?.toString(),
-			topicIds: selectedTopic?.id ? [selectedTopic.id] : [],
+			topicIds: [
+				...new Set(
+					[selectedTopic?.id, ...(mergedData.topicIds ?? [])].filter(
+						(id): id is number => typeof id === 'number'
+					)
+				)
+			],
 			agencyId: mergedData.agency?.id?.toString(),
 			postcode: mergedData.zipcode,
 			termsAccepted: 'true',

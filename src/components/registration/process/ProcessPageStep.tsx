@@ -13,7 +13,6 @@ import { Box, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { RegistrationContext } from '../../../globalState';
 import type { RegistrationStep } from '../registrationSteps';
-import { TopicSelection } from '../topicSelection/TopicSelection';
 import { ZipcodeInput } from '../zipcodeInput/ZipcodeInput';
 import { AgencySelection } from '../agencySelection/AgencySelection';
 import { AccountData } from '../accountData/AccountData';
@@ -33,6 +32,12 @@ import {
 } from '../registrationDesign/registrationDesign';
 import { isAccountBlock, type ProcessPage } from './processPages';
 import { LanguageInput } from './LanguageInput';
+import {
+	AgeYearsInput,
+	GenderInput,
+	TopicChoice,
+	TopicsInput
+} from './PlatformBlocks';
 
 type StepProps = ComponentProps<RegistrationStep['component']>;
 
@@ -109,8 +114,13 @@ const QuestionBlock = ({
 	</Box>
 );
 
-const blockFor = (step: JourneyStep, props: StepProps) => {
-	if (step.core === 'topic') return <TopicSelection {...props} />;
+const blockFor = (step: JourneyStep, props: StepProps, language: string) => {
+	const own = { step, language, onChange: props.onChange };
+	// A topic on a page with others is asked later; alone first, it is the platform's own step.
+	if (step.core === 'topic') return <TopicChoice {...own} />;
+	if (step.core === 'age') return <AgeYearsInput {...own} />;
+	if (step.core === 'gender') return <GenderInput {...own} />;
+	if (step.core === 'topics') return <TopicsInput {...own} />;
 	if (step.core === 'postcode') return <ZipcodeInput {...props} />;
 	if (step.core === 'agency') return <AgencySelection {...props} />;
 	if (step.core === 'language')
@@ -230,7 +240,7 @@ export const ProcessPageView = ({
 						</Slot>
 					) : null;
 				}
-				const block = blockFor(step, blockProps);
+				const block = blockFor(step, blockProps, language);
 				return block ? (
 					<Slot key={step.id} id={step.id} onDisabled={onDisabled}>
 						{block}
@@ -258,7 +268,10 @@ const MANDATORY: Partial<Record<string, string[]>> = {
 
 export const stepNameOf = (page: ProcessPage, index: number) => {
 	if (page.steps.some(isAccountBlock)) return 'account-data';
-	if (page.steps.length === 1) {
+	if (
+		page.steps.length === 1 &&
+		!(index > 0 && page.steps[0].core === 'topic')
+	) {
 		const only = page.steps[0];
 		const canonical = CANONICAL[only.core ?? only.addon ?? ''];
 		if (canonical) return canonical;

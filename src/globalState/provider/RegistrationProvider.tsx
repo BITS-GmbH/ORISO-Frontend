@@ -66,6 +66,9 @@ interface SessionStorageData {
 	processJourneyId?: string;
 	/** The language the person wants to be counselled in; narrows the centres. */
 	counsellingLanguage?: string;
+	/** Process blocks that fill the session's own fields (ADR-039). */
+	gender?: string;
+	topicIds?: number[];
 }
 
 export interface RegistrationData extends SessionStorageData {
@@ -215,14 +218,11 @@ export function RegistrationProvider({ children }: PropsWithChildren<{}>) {
 	const processTopicId = registrationData?.mainTopic?.id;
 	const processLink = getUrlParameter('link');
 	useEffect(() => {
-		if (!processTopicId && !processLink) {
-			setProcess(null);
-			return;
-		}
 		let cancelled = false;
+		// Without a topic yet: the process that asks for it later, if there is one.
 		(processLink
 			? apiGetLinkJourney(processLink)
-			: apiGetRegistrationJourney(processTopicId as number)
+			: apiGetRegistrationJourney(processTopicId)
 		).then((answer) => {
 			if (!cancelled)
 				setProcess(answer.journey as JourneyWithPages | null);

@@ -76,4 +76,34 @@ describe('registration process steps', () => {
 		expect(skipped.map((s) => s.name)).toEqual(['seite-2', 'account-data']);
 		expect(skipped[0].component).toBe(full[1].component);
 	});
+
+	it('asks for the topic on its own page after the questions before it', () => {
+		const later: JourneyWithPages = {
+			...journey,
+			id: 'later',
+			phases: {
+				departure: [
+					step('age'),
+					step('topics'),
+					step('topic'),
+					step('postcode'),
+					step('agency'),
+					step('username'),
+					step('consent')
+				]
+			},
+			pages: [
+				{ id: 'p1', stepIds: ['age', 'topics', 'topic'] },
+				{ id: 'p2', stepIds: ['postcode', 'agency'] },
+				{ id: 'p3', stepIds: ['username', 'consent'] }
+			]
+		};
+		const steps = processSteps(later, platform, 'de');
+		expect(steps.map((s) => s.name)).toEqual([
+			'seite-1',
+			'seite-2',
+			'account-data'
+		]);
+		expect(steps[0].mandatoryFields).toContain('mainTopic');
+	});
 });

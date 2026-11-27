@@ -459,6 +459,15 @@ const storybookApiResponse = (url: URL, method: string): Response | null => {
 		return storybookJsonResponse(storybookTopics);
 	}
 
+	// No stored registration process in stories: the registration keeps its form.
+	if (url.pathname.startsWith('/service/users/journeys/')) {
+		return storybookJsonResponse({
+			journeyId: null,
+			journey: null,
+			link: null
+		});
+	}
+
 	// No shipped catalogue in stories: the topic step keeps its built-in clusters.
 	if (url.pathname === '/service/topic-groups') {
 		return storybookJsonResponse({ data: { items: [] } });
