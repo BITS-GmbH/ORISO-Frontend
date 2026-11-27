@@ -1,3 +1,4 @@
+import type { PageCondition } from './process/pageConditions';
 import { ComponentType, Dispatch, SetStateAction } from 'react';
 import { ConsultingTypeInterface } from '../../globalState/interfaces';
 import { RegistrationData } from '../../globalState';
@@ -23,6 +24,8 @@ export type RegistrationStep = {
 	}>;
 	name: string;
 	mandatoryFields?: string[];
+	/** A process page (ADR-039): its blocks, and when it is shown. */
+	processPage?: { stepIds: string[]; when?: PageCondition };
 	condition?: (params: {
 		agency?: unknown;
 		topic?: unknown;

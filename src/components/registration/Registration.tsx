@@ -115,6 +115,8 @@ import {
 } from './groupInviteEntry/groupInviteEntryState';
 import { parseGroupChatInviteId } from '../groupChat/groupChatInviteLink';
 import { TemporaryJoinToggle } from './TemporaryJoinToggle';
+import { nextShownStepName, useShownSteps } from './process/useShownSteps';
+import { answersOfShownSteps } from './process/pageConditions';
 
 /**
  * This type of registration is currently not supporting:
@@ -184,7 +186,7 @@ export const Registration = () => {
 		setDisabledNextButton,
 		updateRegistrationData,
 		registrationData,
-		availableSteps,
+		availableSteps: allSteps,
 		registrationConsultingType,
 		hasRegistrationDataError,
 		retryRegistrationData
@@ -195,6 +197,12 @@ export const Registration = () => {
 	const { locale } = useContext(LocaleContext);
 
 	const [stepData, setStepData] = useState<Partial<RegistrationData>>({});
+	/* A process page shows only while its condition holds (ADR-039). What the
+	   current page holds counts already, so "Weiter" goes to the right page. */
+	const availableSteps = useShownSteps(allSteps, {
+		...registrationData,
+		...stepData
+	});
 	/* Read from the submission module, not held here: this screen is remounted
 	   while the account is being created (see `registrationSubmission`), and
 	   local state starts over at `false` — putting the account form, password
@@ -404,6 +412,12 @@ export const Registration = () => {
 	// :step) redirects to the first step — dev's stabilized entry, no separate
 	// welcome screen.
 	const activeStep = availableSteps[currStepIndex];
+
+	const hiddenStepSuccessor = nextShownStepName(
+		allSteps,
+		availableSteps,
+		step
+	);
 
 	const firstStepUrl = useMemo(
 		() => makeStepUrl(availableSteps[0]?.name || 'topic-selection'),
@@ -815,6 +829,12 @@ export const Registration = () => {
 			mergedData;
 		const data = {
 			...submittable,
+			processAnswers: answersOfShownSteps(
+				submittable.processAnswers,
+				new Set(
+					availableSteps.flatMap((s) => s.processPage?.stepIds ?? [])
+				)
+			),
 			email: isContextEmailCollectionAllowed(
 				tenant?.settings,
 				groupJoin ? 'SELF_HELP' : 'AGENCY_COUNSELLING'
@@ -1483,7 +1503,14 @@ export const Registration = () => {
 								</RegistrationCompletionProvider>
 							</>
 						) : (
-							<Navigate to={firstStepUrl} replace />
+							<Navigate
+								to={
+									hiddenStepSuccessor
+										? makeStepUrl(hiddenStepSuccessor)
+										: firstStepUrl
+								}
+								replace
+							/>
 						)}
 					</Box>
 				</RegistrationTopicSearchContext.Provider>

@@ -315,6 +315,10 @@ export const processPageStep = (
 		component: Component,
 		name,
 		label: name.startsWith('seite-') ? label : undefined,
+		processPage: {
+			stepIds: page.steps.map((step) => step.id),
+			when: page.when
+		},
 		mandatoryFields: page.steps.flatMap(
 			(step) => MANDATORY[step.core ?? ''] ?? []
 		)

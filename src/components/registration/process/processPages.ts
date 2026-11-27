@@ -1,4 +1,5 @@
 import type { Journey, JourneyStep, LangMap } from '../../journey/journeyModel';
+import type { PageCondition } from './pageConditions';
 
 /**
  * The check-in of a Mailberatung journey as the admin grouped it into pages
@@ -10,12 +11,15 @@ export interface ProcessPage {
 	id: string;
 	title: LangMap;
 	steps: JourneyStep[];
+	/** Shown only when this holds; without it always. */
+	when?: PageCondition;
 }
 
 interface StoredPage {
 	id: string;
 	title?: LangMap;
 	stepIds: string[];
+	when?: PageCondition;
 }
 
 export type JourneyWithPages = Journey & { pages?: StoredPage[] };
@@ -29,6 +33,7 @@ export const processPagesOf = (journey: JourneyWithPages): ProcessPage[] => {
 	const stored = (journey.pages ?? []).map((page) => ({
 		id: page.id,
 		title: page.title ?? {},
+		when: page.when,
 		steps: page.stepIds
 			.filter((id) => byId.has(id) && !seen.has(id) && seen.add(id))
 			.map((id) => byId.get(id) as JourneyStep)
