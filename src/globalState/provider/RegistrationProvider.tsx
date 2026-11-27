@@ -32,7 +32,10 @@ import {
 import { getGroupInviteTopicId } from '../../components/registration/groupInviteEntry/groupInviteEntryState';
 import { agencyExcludesTopic } from '../../components/registration/agencyTopicMatch';
 import { useTranslation } from 'react-i18next';
-import { apiGetRegistrationJourney } from '../../api/apiGetJourney';
+import {
+	apiGetLinkJourney,
+	apiGetRegistrationJourney
+} from '../../api/apiGetJourney';
 import type { StepAnswers } from '../../components/journey/journeyModel';
 import type { JourneyWithPages } from '../../components/registration/process/processPages';
 import { processSteps } from '../../components/registration/process/processSteps';
@@ -206,20 +209,24 @@ export function RegistrationProvider({ children }: PropsWithChildren<{}>) {
 	const { i18n } = useTranslation();
 	const [process, setProcess] = useState<JourneyWithPages | null>(null);
 	const processTopicId = registrationData?.mainTopic?.id;
+	const processLink = getUrlParameter('link');
 	useEffect(() => {
-		if (!processTopicId) {
+		if (!processTopicId && !processLink) {
 			setProcess(null);
 			return;
 		}
 		let cancelled = false;
-		apiGetRegistrationJourney(processTopicId).then((answer) => {
+		(processLink
+			? apiGetLinkJourney(processLink)
+			: apiGetRegistrationJourney(processTopicId as number)
+		).then((answer) => {
 			if (!cancelled)
 				setProcess(answer.journey as JourneyWithPages | null);
 		});
 		return () => {
 			cancelled = true;
 		};
-	}, [processTopicId]);
+	}, [processTopicId, processLink]);
 
 	useEffect(() => {
 		const platformSteps = mergeRegistrationSteps(

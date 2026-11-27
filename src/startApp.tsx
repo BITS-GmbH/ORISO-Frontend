@@ -60,6 +60,12 @@ const RegistrationProcessPreview = () => (
 	</UrlParamsProvider>
 );
 
+const LinkEntry = lazyWithReload(() =>
+	import('./components/registration/process/LinkEntry').then((m) => ({
+		default: m.LinkEntry
+	}))
+);
+
 const NewRegistration = () => (
 	<UrlParamsProvider>
 		<RegistrationProvider>
@@ -94,6 +100,11 @@ if (container) {
 						// (Frontend#144): real markup, mock content, no API.
 						route: { path: '/theme-demo' },
 						component: ThemeDemo
+					},
+					{
+						// A link of its own from the Admin's registration builder (ADR-039).
+						route: { path: '/l/:slug' },
+						component: LinkEntry
 					},
 					{
 						// The Admin's registration builder shows its draft pages here (ADR-039).

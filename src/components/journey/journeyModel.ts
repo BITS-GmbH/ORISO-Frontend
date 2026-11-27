@@ -105,6 +105,7 @@ export interface JourneyLink {
 	slug: string;
 	topicIds: number[];
 	agencyName?: string;
+	agencyId?: number;
 }
 
 /** What UserService answers; `journey` is null where none is stored (keep today's form). */
