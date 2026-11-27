@@ -18,6 +18,7 @@ import { Box, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { UrlParamsContext } from '../../../globalState/provider/UrlParamsProvider';
 import { useAgenciesForRegistration } from '../../../containers/registration/hooks/useAgenciesForRegistration';
+import { useAgenciesSpeaking } from '../process/useAgenciesSpeaking';
 import { Loading } from '../../../components/app/Loading';
 import { registrationScreenTitleSx } from '../registrationDesign/registrationDesign';
 import {
@@ -139,10 +140,15 @@ const CoreAgencySelection: FC<AgencySelectionProps> = ({
 		}
 	}, [staleRegistrationRef, updateRegistrationData]);
 
-	const { isLoading, agencies } = useAgenciesForRegistration({
+	const { isLoading, agencies: nearby } = useAgenciesForRegistration({
 		topic: registrationData.mainTopic,
 		postcode: registrationData?.zipcode
 	});
+	const {
+		agencies,
+		matched: languageMatched,
+		checking: checkingLanguage
+	} = useAgenciesSpeaking(nearby, registrationData?.counsellingLanguage);
 
 	const [headlineZipcode, setHeadlineZipcode] = useState<string>('');
 
@@ -152,7 +158,7 @@ const CoreAgencySelection: FC<AgencySelectionProps> = ({
 		}
 	}, [registrationData, preselectedConsultant]);
 
-	if (isLoading) {
+	if (isLoading || checkingLanguage) {
 		return <CenteredLoading />;
 	}
 
@@ -168,6 +174,11 @@ const CoreAgencySelection: FC<AgencySelectionProps> = ({
 					? t('registration.agency.consultantheadline')
 					: t('registration.agency.headline')}
 			</Typography>
+			{!languageMatched && (
+				<Typography sx={{ mb: 2 }} data-cy="agency-language-fallback">
+					{t('registration.counsellingLanguage.noMatch')}
+				</Typography>
+			)}
 			<AgencySelectionResults
 				onChange={onChange}
 				nextStepUrl={nextStepUrl}

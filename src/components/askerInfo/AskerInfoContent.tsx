@@ -11,6 +11,7 @@ import {
 	ActiveSessionContext
 } from '../../globalState';
 import { AskerInfoData } from './AskerInfoData';
+import { AskerRegistrationAnswers } from './AskerRegistrationAnswers';
 import { AskerInfoAssign } from './AskerInfoAssign';
 import '../profile/profile.styles';
 import './askerInfo.styles';
@@ -57,6 +58,7 @@ export const AskerInfoContent = () => {
 			<AskerInfoPrivacyNote />
 			<Box>
 				<AskerInfoData />
+				<AskerRegistrationAnswers />
 			</Box>
 			{tenant?.settings?.featureToolsEnabled && (
 				<Box>

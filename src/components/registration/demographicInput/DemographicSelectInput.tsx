@@ -18,7 +18,7 @@ import {
 } from '../registrationDesign/registrationDesign';
 
 export const DemographicSelectInput: FC<{
-	field: 'age' | 'state';
+	field: 'age' | 'state' | 'counsellingLanguage';
 	headlineKey: string;
 	placeholderKey: string;
 	Icon: SvgIconComponent;

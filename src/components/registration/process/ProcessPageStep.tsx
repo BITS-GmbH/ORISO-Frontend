@@ -32,6 +32,7 @@ import {
 	registrationScreenTitleSx
 } from '../registrationDesign/registrationDesign';
 import { isAccountBlock, type ProcessPage } from './processPages';
+import { LanguageInput } from './LanguageInput';
 
 type StepProps = ComponentProps<RegistrationStep['component']>;
 
@@ -102,6 +103,8 @@ const blockFor = (step: JourneyStep, props: StepProps) => {
 	if (step.core === 'topic') return <TopicSelection {...props} />;
 	if (step.core === 'postcode') return <ZipcodeInput {...props} />;
 	if (step.core === 'agency') return <AgencySelection {...props} />;
+	if (step.core === 'language')
+		return <LanguageInput onChange={props.onChange} />;
 	if (step.addon === 'age') return <AgeInput onChange={props.onChange} />;
 	if (step.addon === 'state') return <StateInput onChange={props.onChange} />;
 	return null;

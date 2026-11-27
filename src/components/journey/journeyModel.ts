@@ -26,6 +26,7 @@ export type CoreElementId =
 	| 'topic'
 	| 'postcode'
 	| 'agency'
+	| 'language'
 	| 'username'
 	| 'consent'
 	| 'email'

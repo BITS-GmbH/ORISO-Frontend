@@ -4166,6 +4166,12 @@
 		"stepScroll": {
 			"back": "Vorige Schritte",
 			"forward": "Nächste Schritte"
+		},
+		"counsellingLanguage": {
+			"headline": "In welcher Sprache möchten Sie beraten werden?",
+			"dropdown": "Sprache wählen",
+			"any": "Egal, jede Sprache ist recht",
+			"noMatch": "In Ihrer Nähe berät niemand in dieser Sprache. Hier sind alle Beratungsstellen in Ihrer Nähe."
 		}
 	},
 	"releaseNote": {
@@ -5453,6 +5459,9 @@
 		},
 		"header": {
 			"title": "Zusätzliche Angaben zur ratsuchenden Person"
+		},
+		"registrationAnswers": {
+			"title": "Angaben aus der Registrierung"
 		}
 	},
 	"videoCall": {

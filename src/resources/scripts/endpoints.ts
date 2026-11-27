@@ -194,6 +194,9 @@ export const endpoints = {
 		userServiceOrigin + '/service/users/event-notifications',
 	doNotDisturb:
 		userServiceOrigin + '/service/users/notifications/do-not-disturb',
+	registrationAnswers: (sessionId: number) =>
+		userServiceOrigin +
+		`/service/users/sessions/${sessionId}/registration-answers`,
 	userDataBySessionId: (sessionId: number) =>
 		userServiceOrigin + `/service/users/consultants/sessions/${sessionId}`,
 	userSessionsListView: '/sessions/user/view',

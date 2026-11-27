@@ -4112,6 +4112,12 @@
 		"stepScroll": {
 			"back": "Previous steps",
 			"forward": "Next steps"
+		},
+		"counsellingLanguage": {
+			"headline": "In which language would you like to be counselled?",
+			"dropdown": "Choose a language",
+			"any": "Any language is fine",
+			"noMatch": "Nobody near you counsels in this language. Here are all counselling centres near you."
 		}
 	},
 	"releaseNote": {
@@ -5401,6 +5407,9 @@
 		},
 		"header": {
 			"title": "Additional client information"
+		},
+		"registrationAnswers": {
+			"title": "Answers from the registration"
 		}
 	},
 	"videoCall": {

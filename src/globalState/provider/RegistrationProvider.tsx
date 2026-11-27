@@ -62,6 +62,10 @@ interface SessionStorageData {
 	registrationRef?: string;
 	/** Answers to the own questions of the topic's process (ADR-039), per check-in step. */
 	processAnswers?: Record<string, StepAnswers>;
+	/** The process those answers belong to; the server reads its questions from it. */
+	processJourneyId?: string;
+	/** The language the person wants to be counselled in; narrows the centres. */
+	counsellingLanguage?: string;
 }
 
 export interface RegistrationData extends SessionStorageData {
@@ -332,6 +336,16 @@ export function RegistrationProvider({ children }: PropsWithChildren<{}>) {
 		},
 		[]
 	);
+	const processJourneyId = process?.id;
+	useEffect(() => {
+		if (registrationData?.processJourneyId !== processJourneyId) {
+			updateRegistrationData({ processJourneyId });
+		}
+	}, [
+		processJourneyId,
+		registrationData?.processJourneyId,
+		updateRegistrationData
+	]);
 
 	useEffect(() => {
 		// Keep the saved draft intact while its agency and topic data load.
