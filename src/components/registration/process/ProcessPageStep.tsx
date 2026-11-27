@@ -256,7 +256,7 @@ const MANDATORY: Partial<Record<string, string[]>> = {
 	username: ['username', 'password']
 };
 
-const stepNameOf = (page: ProcessPage, index: number) => {
+export const stepNameOf = (page: ProcessPage, index: number) => {
 	if (page.steps.some(isAccountBlock)) return 'account-data';
 	if (page.steps.length === 1) {
 		const only = page.steps[0];
@@ -278,15 +278,16 @@ const currentPages = new Map<string, { page: ProcessPage; language: string }>();
 /** One page of a process as a step of the registration wizard. */
 export const processPageStep = (
 	page: ProcessPage,
-	index: number,
+	name: string,
+	journeyId: string,
 	language: string,
 	label: string
 ): RegistrationStep & { label?: string } => {
-	const name = stepNameOf(page, index);
-	currentPages.set(name, { page, language });
-	if (!components.has(name)) {
-		components.set(name, (props: StepProps) => {
-			const current = currentPages.get(name);
+	const key = `${journeyId}:${name}`;
+	currentPages.set(key, { page, language });
+	if (!components.has(key)) {
+		components.set(key, (props: StepProps) => {
+			const current = currentPages.get(key);
 			return current ? (
 				<ProcessPageView
 					{...props}
@@ -296,7 +297,7 @@ export const processPageStep = (
 			) : null;
 		});
 	}
-	const Component = components.get(name) as RegistrationStep['component'];
+	const Component = components.get(key) as RegistrationStep['component'];
 	return {
 		component: Component,
 		name,

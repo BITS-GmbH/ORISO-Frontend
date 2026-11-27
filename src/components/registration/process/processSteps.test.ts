@@ -66,4 +66,14 @@ describe('registration process steps', () => {
 			'account-data'
 		]);
 	});
+
+	it('names a page the same when a link skips the topic choice', () => {
+		const withoutTopic = platform.filter(
+			(s) => s.name !== 'topic-selection'
+		);
+		const full = processSteps(journey, platform, 'de');
+		const skipped = processSteps(journey, withoutTopic, 'de');
+		expect(skipped.map((s) => s.name)).toEqual(['seite-2', 'account-data']);
+		expect(skipped[0].component).toBe(full[1].component);
+	});
 });

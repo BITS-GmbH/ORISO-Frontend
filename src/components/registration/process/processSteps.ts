@@ -6,7 +6,7 @@ import {
 	type JourneyWithPages,
 	type ProcessPage
 } from './processPages';
-import { processPageStep } from './ProcessPageStep';
+import { processPageStep, stepNameOf } from './ProcessPageStep';
 
 const BLOCK_STEP: Partial<Record<string, string>> = {
 	topic: 'topic-selection',
@@ -33,18 +33,25 @@ export const processSteps = (
 			return !platform || present.has(platform);
 		})
 	});
-	const pages = withAccountLast(processPagesOf(journey))
-		.map(kept)
-		.filter((page) => page.steps.length > 0);
-	return pages.map((page, index) => {
-		if (page.steps.length === 1 && page.steps[0].core === 'topic') {
-			return platformSteps.find(
-				(step) => step.name === 'topic-selection'
-			) as RegistrationStep;
-		}
-		const label =
-			textIn(page.title, language) ||
-			textIn(page.steps[0]?.title, language);
-		return processPageStep(page, index, language, label);
-	});
+	// Names come from the whole process, before a link takes pages away, so a
+	// page keeps its name (and with it its address) however it is reached.
+	const named = withAccountLast(processPagesOf(journey)).map(
+		(page, index) => ({
+			page: kept(page),
+			name: stepNameOf(page, index)
+		})
+	);
+	return named
+		.filter(({ page }) => page.steps.length > 0)
+		.map(({ page, name }) => {
+			if (page.steps.length === 1 && page.steps[0].core === 'topic') {
+				return platformSteps.find(
+					(step) => step.name === 'topic-selection'
+				) as RegistrationStep;
+			}
+			const label =
+				textIn(page.title, language) ||
+				textIn(page.steps[0]?.title, language);
+			return processPageStep(page, name, journey.id, language, label);
+		});
 };
