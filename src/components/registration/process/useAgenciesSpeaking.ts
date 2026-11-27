@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { apiAgencyLanguages } from '../../../api/apiAgencyLanguages';
 import type { AgencyDataInterface } from '../../../globalState/interfaces';
 import { useAppConfig } from '../../../hooks/useAppConfig';
@@ -59,13 +59,15 @@ export const useAgenciesSpeaking = (
 		// eslint-disable-next-line react-hooks/exhaustive-deps -- `key` names the ids and the language
 	}, [filtering, key, singleDomain]);
 
-	if (!filtering || !agencies || speaking?.key !== key) {
-		return { agencies, matched: true };
-	}
-	const filtered = agencies.filter((agency) =>
-		speaking.ids.includes(agency.id)
-	);
-	return filtered.length > 0
-		? { agencies: filtered, matched: true }
-		: { agencies, matched: false };
+	return useMemo(() => {
+		if (!filtering || !agencies || speaking?.key !== key) {
+			return { agencies, matched: true };
+		}
+		const filtered = agencies.filter((agency) =>
+			speaking.ids.includes(agency.id)
+		);
+		return filtered.length > 0
+			? { agencies: filtered, matched: true }
+			: { agencies, matched: false };
+	}, [agencies, filtering, key, speaking]);
 };

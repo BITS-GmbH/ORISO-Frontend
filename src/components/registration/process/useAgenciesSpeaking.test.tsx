@@ -64,4 +64,18 @@ describe('useAgenciesSpeaking', () => {
 		expect(result.current.matched).toBe(true);
 		expect(apiAgencyLanguages).not.toHaveBeenCalled();
 	});
+
+	it('hands out the same list until the centres or the language change', async () => {
+		const list = [agency(4), agency(6)];
+		const { result, rerender } = renderHook(() =>
+			useAgenciesSpeaking(list, 'tr')
+		);
+		await waitFor(() => expect(result.current.agencies).toHaveLength(1), {
+			timeout: 5000
+		});
+		const first = result.current.agencies;
+		rerender();
+		rerender();
+		expect(result.current.agencies).toBe(first);
+	});
 });
