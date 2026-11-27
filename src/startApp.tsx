@@ -46,6 +46,20 @@ const Registration = lazyWithReload(() =>
 	}))
 );
 
+const ProcessPreview = lazyWithReload(() =>
+	import('./components/registration/process/ProcessPreview').then((m) => ({
+		default: m.ProcessPreview
+	}))
+);
+
+const RegistrationProcessPreview = () => (
+	<UrlParamsProvider>
+		<RegistrationProvider>
+			<ProcessPreview />
+		</RegistrationProvider>
+	</UrlParamsProvider>
+);
+
 const NewRegistration = () => (
 	<UrlParamsProvider>
 		<RegistrationProvider>
@@ -80,6 +94,11 @@ if (container) {
 						// (Frontend#144): real markup, mock content, no API.
 						route: { path: '/theme-demo' },
 						component: ThemeDemo
+					},
+					{
+						// The Admin's registration builder shows its draft pages here (ADR-039).
+						route: { path: '/registration-preview' },
+						component: RegistrationProcessPreview
 					},
 					{
 						// v7 dropped optional params (:step?), so the wizard's

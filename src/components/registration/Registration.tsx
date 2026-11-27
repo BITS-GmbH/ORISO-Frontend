@@ -1117,6 +1117,18 @@ export const Registration = () => {
 									visibleStepNames={availableSteps.map(
 										({ name }) => name
 									)}
+									customSteps={availableSteps.flatMap(
+										(candidate) =>
+											'label' in candidate &&
+											typeof candidate.label === 'string'
+												? [
+														{
+															name: candidate.name,
+															label: candidate.label
+														}
+													]
+												: []
+									)}
 									clickableStepNames={
 										clickableStepperStepNames
 									}

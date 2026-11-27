@@ -31,6 +31,11 @@ import {
 } from '../../components/registration/registrationSteps';
 import { getGroupInviteTopicId } from '../../components/registration/groupInviteEntry/groupInviteEntryState';
 import { agencyExcludesTopic } from '../../components/registration/agencyTopicMatch';
+import { useTranslation } from 'react-i18next';
+import { apiGetRegistrationJourney } from '../../api/apiGetJourney';
+import type { StepAnswers } from '../../components/journey/journeyModel';
+import type { JourneyWithPages } from '../../components/registration/process/processPages';
+import { processSteps } from '../../components/registration/process/processSteps';
 
 export const RegistrationContext = createContext<RegistrationContextInterface>(
 	{}
@@ -52,6 +57,8 @@ interface SessionStorageData {
 	state?: string;
 	/** Set by a registration add-on (`registration.agency-finder`), sent with the registration. */
 	registrationRef?: string;
+	/** Answers to the own questions of the topic's process (ADR-039), per check-in step. */
+	processAnswers?: Record<string, StepAnswers>;
 }
 
 export interface RegistrationData extends SessionStorageData {
@@ -196,11 +203,35 @@ export function RegistrationProvider({ children }: PropsWithChildren<{}>) {
 		};
 	}, [registrationData?.agency?.consultingType, loadAttempt]);
 
+	const { i18n } = useTranslation();
+	const [process, setProcess] = useState<JourneyWithPages | null>(null);
+	const processTopicId = registrationData?.mainTopic?.id;
 	useEffect(() => {
-		setAvailableSteps(
-			mergeRegistrationSteps(preselectedSteps, registrationConsultingType)
+		if (!processTopicId) {
+			setProcess(null);
+			return;
+		}
+		let cancelled = false;
+		apiGetRegistrationJourney(processTopicId).then((answer) => {
+			if (!cancelled)
+				setProcess(answer.journey as JourneyWithPages | null);
+		});
+		return () => {
+			cancelled = true;
+		};
+	}, [processTopicId]);
+
+	useEffect(() => {
+		const platformSteps = mergeRegistrationSteps(
+			preselectedSteps,
+			registrationConsultingType
 		);
-	}, [preselectedSteps, registrationConsultingType]);
+		setAvailableSteps(
+			process?.phases.departure?.length
+				? processSteps(process, platformSteps, i18n.language || 'de')
+				: platformSteps
+		);
+	}, [preselectedSteps, registrationConsultingType, process, i18n.language]);
 
 	// Init already stored data from session storage
 	useEffect(() => {
