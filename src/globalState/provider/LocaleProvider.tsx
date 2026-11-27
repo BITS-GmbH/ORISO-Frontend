@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { isRegistrationPreview } from '../../utils/registrationPreview';
 import { useContext, useEffect, useMemo, useState } from 'react';
 import i18n, { FALLBACK_LNG, init } from '../../i18n';
 import { InformalContext } from './InformalProvider';
@@ -111,7 +112,7 @@ export function LocaleProvider(props) {
 					i18n.language ||
 					FALLBACK_LNG;
 
-				setValueInCookie('lang', locale);
+				if (!isRegistrationPreview()) setValueInCookie('lang', locale);
 				setLocale(locale);
 				setInitialized(true);
 			})
@@ -178,9 +179,11 @@ export function LocaleProvider(props) {
 				}
 			}
 			i18n.changeLanguage(lngCode);
-			localStorage.setItem(STORAGE_KEY_LOCALE, locale);
 			document.documentElement.lang = locale;
-			setValueInCookie('lang', locale);
+			if (!isRegistrationPreview()) {
+				localStorage.setItem(STORAGE_KEY_LOCALE, locale);
+				setValueInCookie('lang', locale);
+			}
 		}
 	}, [locale, informal, locales, languagesReady]);
 

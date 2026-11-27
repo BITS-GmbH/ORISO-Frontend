@@ -1,8 +1,12 @@
 import * as React from 'react';
-import { useCallback, useContext, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { Box, Button, LinearProgress, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import { RegistrationContext, RegistrationData } from '../../../globalState';
+import {
+	LocaleContext,
+	RegistrationContext,
+	RegistrationData
+} from '../../../globalState';
 import { TopicSelection } from '../topicSelection/TopicSelection';
 import { registrationMd3 as md3 } from '../registrationDesign/registrationDesign';
 import { ProcessPageView } from './ProcessPageStep';
@@ -36,6 +40,9 @@ export const ProcessPreview = () => {
 	const { updateRegistrationData, disabledNextButton } =
 		useContext(RegistrationContext);
 	const [message, setMessage] = useState<ProcessPreviewMessage>();
+	const { setLocale } = useContext(LocaleContext);
+	const setLocaleRef = useRef(setLocale);
+	setLocaleRef.current = setLocale;
 
 	useEffect(() => {
 		const receive = (event: MessageEvent) => {
@@ -43,9 +50,7 @@ export const ProcessPreview = () => {
 			if (!isPreviewMessage(event.data)) return;
 			setMessage(event.data);
 			const { language } = event.data;
-			if (language && language !== i18n.language) {
-				i18n.changeLanguage(language);
-			}
+			if (language) setLocaleRef.current?.(language);
 		};
 		window.addEventListener('message', receive);
 		window.parent?.postMessage(
@@ -53,7 +58,7 @@ export const ProcessPreview = () => {
 			window.location.origin
 		);
 		return () => window.removeEventListener('message', receive);
-	}, [i18n]);
+	}, []);
 
 	const onChange = useCallback(
 		(

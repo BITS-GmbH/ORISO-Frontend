@@ -6,6 +6,7 @@ import {
 	useContext,
 	useEffect,
 	useMemo,
+	useRef,
 	useState
 } from 'react';
 import { Box, Typography } from '@mui/material';
@@ -114,6 +115,28 @@ export const ProcessPageView = ({
 	const { registrationData, updateRegistrationData, setDisabledNextButton } =
 		useContext(RegistrationContext);
 	const [disabled, setDisabled] = useState<Record<string, boolean>>({});
+	const latest = useRef(registrationData);
+	latest.current = registrationData;
+	const { onChange: stepOnChange } = props;
+	const shared =
+		page.steps.filter((step) => step.kind !== 'question').length > 1;
+	/* The registration keeps a step's input until "Weiter". Screens that share a
+	   page read each other's input (the centre list needs the postcode), so on
+	   such a page every input is taken over at once. */
+	const onChange = useCallback(
+		(patch: Parameters<StepProps['onChange']>[0]) => {
+			stepOnChange(patch);
+			if (!shared) return;
+			const current = latest.current ?? {};
+			const next = typeof patch === 'function' ? patch(current) : patch;
+			const changed = Object.entries(next).some(
+				([key, value]) => current[key as keyof typeof current] !== value
+			);
+			if (changed) updateRegistrationData?.(next);
+		},
+		[stepOnChange, shared, updateRegistrationData]
+	);
+	const blockProps = { ...props, onChange };
 	const onDisabled = useCallback(
 		(id: string, value: boolean) =>
 			setDisabled((current) =>
@@ -189,11 +212,11 @@ export const ProcessPageView = ({
 							id={step.id}
 							onDisabled={onDisabled}
 						>
-							<AccountData {...props} />
+							<AccountData {...blockProps} />
 						</Slot>
 					) : null;
 				}
-				const block = blockFor(step, props);
+				const block = blockFor(step, blockProps);
 				return block ? (
 					<Slot key={step.id} id={step.id} onDisabled={onDisabled}>
 						{block}

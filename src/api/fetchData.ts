@@ -1,4 +1,5 @@
 import { getValueFromCookie } from '../components/sessionCookie/accessSessionCookie';
+import { isRegistrationPreview } from '../utils/registrationPreview';
 import { generateCsrfToken } from '../utils/generateCsrfToken';
 import {
 	getErrorCaseForStatus,
@@ -63,6 +64,7 @@ export const FETCH_SUCCESS = {
 };
 
 const invalidateStaleAuthSession = () => {
+	if (isRegistrationPreview()) return;
 	removeAllCookies();
 	removeTokenExpiryFromLocalStorage();
 };
@@ -138,7 +140,9 @@ export const fetchData = ({
 	new Promise((resolve, reject) => {
 		const reqLog = new RequestLog(url, method, timeout);
 
-		const accessToken = getValueFromCookie('keycloak');
+		const accessToken = isRegistrationPreview()
+			? undefined
+			: getValueFromCookie('keycloak');
 		const authorization =
 			!skipAuth && accessToken
 				? {
