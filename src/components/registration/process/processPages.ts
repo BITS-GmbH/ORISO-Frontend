@@ -52,10 +52,26 @@ export const isAccountBlock = (step: JourneyStep) =>
 	step.core === 'consent' ||
 	step.core === 'email';
 
-/** The page that creates the account comes last: its button registers. */
+/**
+ * Username, consent and e-mail are one screen in the registration, so they
+ * form one page, and it comes last: its button registers.
+ */
 export const withAccountLast = (pages: ProcessPage[]): ProcessPage[] => {
-	const account = pages.find((page) => page.steps.some(isAccountBlock));
-	return account
-		? [...pages.filter((page) => page !== account), account]
-		: pages;
+	const account = pages.flatMap((page) => page.steps.filter(isAccountBlock));
+	if (account.length === 0) return pages;
+	const home = pages.find((page) => page.steps.some(isAccountBlock));
+	const rest = pages
+		.map((page) => ({
+			...page,
+			steps: page.steps.filter((step) => !isAccountBlock(step))
+		}))
+		.filter((page) => page.steps.length > 0);
+	return [
+		...rest,
+		{
+			id: home?.id ?? 'page:account',
+			title: home?.title ?? {},
+			steps: account
+		}
+	];
 };

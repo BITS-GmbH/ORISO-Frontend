@@ -74,4 +74,14 @@ describe('registration process pages', () => {
 			withAccountLast(processPagesOf(early)).map((page) => page.id)
 		).toEqual(['page:topic', 'c', 'b']);
 	});
+
+	it('puts username, consent and e-mail on one last page', () => {
+		const pages = withAccountLast(processPagesOf(journey()));
+		expect(pages.map((page) => page.steps.map((step) => step.id))).toEqual([
+			['topic'],
+			['postcode'],
+			['agency'],
+			['username', 'consent', 'email']
+		]);
+	});
 });
