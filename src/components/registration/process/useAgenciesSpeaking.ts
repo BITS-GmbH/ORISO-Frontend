@@ -21,36 +21,38 @@ export const useAgenciesSpeaking = (
 		language && language !== ANY_LANGUAGE && agencies?.length
 	);
 
+	const agencyKey = agencies?.map((agency) => agency.id).join(',') ?? '';
+	const [checked, setChecked] = useState<string>();
+	const request = `${language}|${agencyKey}`;
+
 	useEffect(() => {
-		if (!active || !agencies) {
-			setSpeaking(null);
-			return undefined;
-		}
+		if (!active || agencyKey === '') return undefined;
 		let cancelled = false;
 		Promise.all(
-			agencies.map((agency) =>
-				apiAgencyLanguages(agency.id, singleDomain)
+			agencyKey.split(',').map((id) =>
+				apiAgencyLanguages(Number(id), singleDomain)
 					.then((answer) =>
 						answer?.languages?.includes(language as string)
-							? agency.id
+							? Number(id)
 							: null
 					)
 					.catch(() => null)
 			)
 		).then((ids) => {
-			if (!cancelled)
-				setSpeaking(ids.filter((id): id is number => id !== null));
+			if (cancelled) return;
+			setSpeaking(ids.filter((id): id is number => id !== null));
+			setChecked(request);
 		});
 		return () => {
 			cancelled = true;
 		};
-	}, [active, agencies, language, singleDomain]);
+	}, [active, agencyKey, language, singleDomain, request]);
 
-	if (!active || !agencies || speaking === null) {
+	if (!active || !agencies || speaking === null || checked !== request) {
 		return {
 			agencies,
 			matched: true,
-			checking: active && speaking === null
+			checking: active && checked !== request
 		};
 	}
 	const filtered = agencies.filter((agency) => speaking.includes(agency.id));
