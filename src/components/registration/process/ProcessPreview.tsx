@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useCallback, useContext, useEffect, useState } from 'react';
-import { Box, LinearProgress, Typography } from '@mui/material';
+import { Box, Button, LinearProgress, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { RegistrationContext, RegistrationData } from '../../../globalState';
 import { TopicSelection } from '../topicSelection/TopicSelection';
@@ -32,8 +32,9 @@ const isPreviewMessage = (data: unknown): data is ProcessPreviewMessage =>
  * Nothing is sent: there is no "Weiter" that registers.
  */
 export const ProcessPreview = () => {
-	const { i18n } = useTranslation();
-	const { updateRegistrationData } = useContext(RegistrationContext);
+	const { t, i18n } = useTranslation();
+	const { updateRegistrationData, disabledNextButton } =
+		useContext(RegistrationContext);
 	const [message, setMessage] = useState<ProcessPreviewMessage>();
 
 	useEffect(() => {
@@ -67,13 +68,21 @@ export const ProcessPreview = () => {
 		[updateRegistrationData]
 	);
 
+	const goTo = useCallback((page: number) => {
+		window.parent?.postMessage(
+			{ type: 'oriso:process-preview-page', page },
+			window.location.origin
+		);
+	}, []);
+
 	if (!message) return null;
 	const pages = withAccountLast(processPagesOf(message.journey));
 	const index = Math.max(0, Math.min(message.page, pages.length - 1));
 	const page = pages[index];
+	const isLast = index >= pages.length - 1;
 	const props = {
 		onChange,
-		onNextClick: () => undefined,
+		onNextClick: () => !isLast && goTo(index + 1),
 		nextStepUrl: null,
 		prevStepUrl: null
 	};
@@ -118,6 +127,33 @@ export const ProcessPreview = () => {
 						language={i18n.language || 'de'}
 					/>
 				))}
+			<Box
+				sx={{
+					display: 'flex',
+					justifyContent: 'space-between',
+					alignItems: 'center',
+					mt: 4,
+					gap: 2
+				}}
+			>
+				<Button
+					variant="text"
+					disabled={index === 0}
+					onClick={() => goTo(index - 1)}
+				>
+					{t('registration.back')}
+				</Button>
+				<Button
+					variant="contained"
+					disabled={isLast || disabledNextButton}
+					onClick={() => goTo(index + 1)}
+					sx={{ borderRadius: 20, px: 4 }}
+				>
+					{isLast
+						? t('registration.register')
+						: t('registration.next')}
+				</Button>
+			</Box>
 		</Box>
 	);
 };
