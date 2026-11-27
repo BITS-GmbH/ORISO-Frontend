@@ -144,11 +144,10 @@ const CoreAgencySelection: FC<AgencySelectionProps> = ({
 		topic: registrationData.mainTopic,
 		postcode: registrationData?.zipcode
 	});
-	const {
-		agencies,
-		matched: languageMatched,
-		checking: checkingLanguage
-	} = useAgenciesSpeaking(nearby, registrationData?.counsellingLanguage);
+	const { agencies, matched: languageMatched } = useAgenciesSpeaking(
+		nearby,
+		registrationData?.counsellingLanguage
+	);
 
 	const [headlineZipcode, setHeadlineZipcode] = useState<string>('');
 
@@ -158,7 +157,7 @@ const CoreAgencySelection: FC<AgencySelectionProps> = ({
 		}
 	}, [registrationData, preselectedConsultant]);
 
-	if (isLoading || checkingLanguage) {
+	if (isLoading) {
 		return <CenteredLoading />;
 	}
 

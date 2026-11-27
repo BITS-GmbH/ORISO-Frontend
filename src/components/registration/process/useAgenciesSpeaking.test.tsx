@@ -26,12 +26,23 @@ describe('useAgenciesSpeaking', () => {
 			({ list }) => useAgenciesSpeaking(list, 'tr'),
 			{ initialProps: { list: [agency(4), agency(6)] } }
 		);
-		await waitFor(() => expect(result.current.checking).toBe(false));
+		await waitFor(
+			() =>
+				expect(
+					result.current.agencies?.map(
+						(a) => (a as { id: number }).id
+					)
+				).toEqual([4]),
+			{ timeout: 5000 }
+		);
 		rerender({ list: [agency(4), agency(6)] });
-		rerender({ list: [agency(4), agency(6)] });
-		expect(
-			result.current.agencies?.map((a) => (a as { id: number }).id)
-		).toEqual([4]);
+		rerender({ list: [agency(6), agency(4)] });
+		rerender({ list: [agency(4), agency(6), agency(0)] });
+		await waitFor(() =>
+			expect(
+				result.current.agencies?.map((a) => (a as { id: number }).id)
+			).toEqual([4])
+		);
 		expect(result.current.matched).toBe(true);
 		expect(apiAgencyLanguages).toHaveBeenCalledTimes(2);
 	});
@@ -40,8 +51,9 @@ describe('useAgenciesSpeaking', () => {
 		const { result } = renderHook(() =>
 			useAgenciesSpeaking([agency(6)], 'ar')
 		);
-		await waitFor(() => expect(result.current.checking).toBe(false));
-		expect(result.current.matched).toBe(false);
+		await waitFor(() => expect(result.current.matched).toBe(false), {
+			timeout: 5000
+		});
 		expect(result.current.agencies).toHaveLength(1);
 	});
 
@@ -49,7 +61,7 @@ describe('useAgenciesSpeaking', () => {
 		const { result } = renderHook(() =>
 			useAgenciesSpeaking([agency(6)], 'any')
 		);
-		expect(result.current.checking).toBe(false);
+		expect(result.current.matched).toBe(true);
 		expect(apiAgencyLanguages).not.toHaveBeenCalled();
 	});
 });

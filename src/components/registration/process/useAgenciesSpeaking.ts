@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { apiAgencyLanguages } from '../../../api/apiAgencyLanguages';
 import type { AgencyDataInterface } from '../../../globalState/interfaces';
 import { useAppConfig } from '../../../hooks/useAppConfig';
@@ -7,7 +7,8 @@ import { ANY_LANGUAGE } from './LanguageInput';
 /**
  * The centres with a counsellor who speaks `language` (ADR-039). When none
  * does, all of them, with `matched` false, so the person is never left
- * without a centre.
+ * without a centre. Each centre's languages are asked for once: the list
+ * re-renders often, and only its centres decide what to ask.
  */
 export const useAgenciesSpeaking = (
 	agencies: AgencyDataInterface[] | undefined,
@@ -16,47 +17,55 @@ export const useAgenciesSpeaking = (
 	const singleDomain = Boolean(
 		useAppConfig()?.multitenancyWithSingleDomainEnabled
 	);
-	const [speaking, setSpeaking] = useState<number[] | null>(null);
-	const active = Boolean(
-		language && language !== ANY_LANGUAGE && agencies?.length
-	);
-
-	const agencyKey = agencies?.map((agency) => agency.id).join(',') ?? '';
-	const [checked, setChecked] = useState<string>();
-	const request = `${language}|${agencyKey}`;
+	const known = useRef(new Map<number, Promise<string[]>>());
+	const [speaking, setSpeaking] = useState<{ key: string; ids: number[] }>();
+	const filtering = Boolean(language && language !== ANY_LANGUAGE);
+	const ids = (agencies ?? [])
+		.map((agency) => agency.id)
+		.filter((id) => id > 0);
+	const key = `${language}|${ids.join(',')}`;
 
 	useEffect(() => {
-		if (!active || agencyKey === '') return undefined;
+		if (!filtering || ids.length === 0) return undefined;
 		let cancelled = false;
+		const languagesOf = (id: number) => {
+			if (!known.current.has(id)) {
+				known.current.set(
+					id,
+					apiAgencyLanguages(id, singleDomain)
+						.then((answer) => answer?.languages ?? [])
+						.catch(() => [])
+				);
+			}
+			return known.current.get(id) as Promise<string[]>;
+		};
 		Promise.all(
-			agencyKey.split(',').map((id) =>
-				apiAgencyLanguages(Number(id), singleDomain)
-					.then((answer) =>
-						answer?.languages?.includes(language as string)
-							? Number(id)
-							: null
-					)
-					.catch(() => null)
+			ids.map((id) =>
+				languagesOf(id).then((languages) =>
+					languages.includes(language as string) ? id : null
+				)
 			)
-		).then((ids) => {
-			if (cancelled) return;
-			setSpeaking(ids.filter((id): id is number => id !== null));
-			setChecked(request);
+		).then((found) => {
+			if (!cancelled) {
+				setSpeaking({
+					key,
+					ids: found.filter((id): id is number => id !== null)
+				});
+			}
 		});
 		return () => {
 			cancelled = true;
 		};
-	}, [active, agencyKey, language, singleDomain, request]);
+		// eslint-disable-next-line react-hooks/exhaustive-deps -- `key` names the ids and the language
+	}, [filtering, key, singleDomain]);
 
-	if (!active || !agencies || speaking === null || checked !== request) {
-		return {
-			agencies,
-			matched: true,
-			checking: active && checked !== request
-		};
+	if (!filtering || !agencies || speaking?.key !== key) {
+		return { agencies, matched: true };
 	}
-	const filtered = agencies.filter((agency) => speaking.includes(agency.id));
+	const filtered = agencies.filter((agency) =>
+		speaking.ids.includes(agency.id)
+	);
 	return filtered.length > 0
-		? { agencies: filtered, matched: true, checking: false }
-		: { agencies, matched: false, checking: false };
+		? { agencies: filtered, matched: true }
+		: { agencies, matched: false };
 };
