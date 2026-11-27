@@ -36,6 +36,16 @@ import { LanguageInput } from './LanguageInput';
 
 type StepProps = ComponentProps<RegistrationStep['component']>;
 
+/** A centre or topic loaded again is the same choice when its id is. */
+const sameValue = (a: unknown, b: unknown) => {
+	if (a === b) return true;
+	const idOf = (value: unknown) =>
+		value && typeof value === 'object' && 'id' in value
+			? (value as { id: unknown }).id
+			: undefined;
+	return idOf(a) !== undefined && idOf(a) === idOf(b);
+};
+
 /**
  * Lets several of the registration's own screens share one page: each reports
  * its "Weiter" state here instead of to the registration, and the page's
@@ -133,7 +143,8 @@ export const ProcessPageView = ({
 			const current = latest.current ?? {};
 			const next = typeof patch === 'function' ? patch(current) : patch;
 			const changed = Object.entries(next).some(
-				([key, value]) => current[key as keyof typeof current] !== value
+				([key, value]) =>
+					!sameValue(current[key as keyof typeof current], value)
 			);
 			if (changed) updateRegistrationData?.(next);
 		},
@@ -255,6 +266,15 @@ const stepNameOf = (page: ProcessPage, index: number) => {
 	return `seite-${index + 1}`;
 };
 
+/*
+ * The step list is rebuilt whenever the registration data it depends on
+ * changes. A new component for the same step would remount its page and
+ * throw away what the screens on it hold, so each step name keeps one
+ * component, which renders the page as it is now.
+ */
+const components = new Map<string, RegistrationStep['component']>();
+const currentPages = new Map<string, { page: ProcessPage; language: string }>();
+
 /** One page of a process as a step of the registration wizard. */
 export const processPageStep = (
 	page: ProcessPage,
@@ -262,10 +282,21 @@ export const processPageStep = (
 	language: string,
 	label: string
 ): RegistrationStep & { label?: string } => {
-	const Component = (props: StepProps) => (
-		<ProcessPageView {...props} page={page} language={language} />
-	);
 	const name = stepNameOf(page, index);
+	currentPages.set(name, { page, language });
+	if (!components.has(name)) {
+		components.set(name, (props: StepProps) => {
+			const current = currentPages.get(name);
+			return current ? (
+				<ProcessPageView
+					{...props}
+					page={current.page}
+					language={current.language}
+				/>
+			) : null;
+		});
+	}
+	const Component = components.get(name) as RegistrationStep['component'];
 	return {
 		component: Component,
 		name,
